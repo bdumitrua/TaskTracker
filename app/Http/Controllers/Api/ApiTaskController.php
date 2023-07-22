@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManagerStatic as Image;
 
-class TaskController extends Controller
+class ApiTaskController extends Controller
 {
     public function store(Request $request, TasksList $list)
     {

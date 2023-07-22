@@ -6,7 +6,7 @@ use App\Models\TasksList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TaskListController extends Controller
+class ApiTaskListController extends Controller
 {
     public function index()
     {
