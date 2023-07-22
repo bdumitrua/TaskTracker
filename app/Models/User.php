@@ -63,4 +63,19 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function lists()
+    {
+        return $this->hasMany('App\Models\List');
+    }
+
+    public function viewableLists()
+    {
+        return $this->belongsToMany(TodoList::class, 'list_viewers');
+    }
+
+    public function editableLists()
+    {
+        return $this->belongsToMany(TodoList::class, 'list_editors');
+    }
 }
