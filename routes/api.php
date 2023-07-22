@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ApiAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::prefix('auth')->controller(ApiAuthController::class)->group(function () {
+    // Зарегистрироваться
+    Route::post('register', 'register')->name('auth.register');
+    // Залогиниться
+    Route::post('login', 'login')->name('auth.login');
+    // Получить новый токен (по уже истёкшему)
+    Route::post('refresh', 'refresh')->name('auth.refresh');
+
+    Route::middleware(['auth:api'])->group(function () {
+        // Выйти
+        Route::post('logout', 'logout')->name('auth.logout');
+    });
 });
