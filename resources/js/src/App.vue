@@ -1,26 +1,20 @@
 <template>
     <PrimaryHeader />
-    <h1>Hi, {{ username }}</h1>
-    <main class="main">
+    <main class="main mx-5">
         <router-view />
     </main>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import PrimaryHeader from './components/PrimaryHeader.vue';
+import { defineComponent } from "vue";
+import PrimaryHeader from "./components/PrimaryHeader.vue";
 
-export default defineComponent ({
+export default defineComponent({
     components: { PrimaryHeader },
-    setup () {
-        return {
-            username: 'Дмитрий'
-        };
+    setup() {
+        return {};
     },
 });
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

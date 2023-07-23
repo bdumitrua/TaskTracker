@@ -18,11 +18,11 @@ class Task extends Model
 
     public function list()
     {
-        return $this->belongsTo('App\Models\List');
+        return $this->belongsTo(TasksList::class);
     }
 
     public function tags()
     {
-        return $this->belongsToMany('App\Models\Tag');
+        return $this->belongsToMany(Tag::class);
     }
 }
