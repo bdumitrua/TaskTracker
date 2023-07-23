@@ -43,8 +43,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
     async created() {
         if (localStorage.getItem("access_token")) {
@@ -66,7 +64,7 @@ export default {
                 password: this.password,
             };
             try {
-                await axios.post("/api/auth/register", data);
+                await this.$axios.post("/auth/register", data);
 
                 this.$router.push("/login");
             } catch (error) {

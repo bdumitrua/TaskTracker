@@ -37,8 +37,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
     data() {
         return {
@@ -50,7 +48,7 @@ export default {
     methods: {
         async handleSubmit() {
             try {
-                const response = await axios.post("/api/auth/login", {
+                const response = await this.$axios.post("/auth/login", {
                     email: this.email,
                     password: this.password,
                 });
