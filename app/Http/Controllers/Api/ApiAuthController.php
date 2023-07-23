@@ -19,10 +19,7 @@ class ApiAuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json([
-            'message' => 'User created successfully',
-            'user' => $user
-        ]);
+        return response()->json([$user]);
     }
 
     public function login(LoginRequest $request)
@@ -30,10 +27,13 @@ class ApiAuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return response()->json([
+            'user' => Auth::user(),
+            'access_token' => $token,
+        ]);
     }
 
     public function logout()
@@ -52,6 +52,12 @@ class ApiAuthController extends Controller
     public function refresh()
     {
         return $this->respondWithToken(Auth::refresh());
+    }
+
+    public function user()
+    {
+        $user = Auth::user();
+        return response()->json([$user]);
     }
 
     /**

@@ -24,7 +24,9 @@ Route::prefix('auth')->controller(ApiAuthController::class)->group(function () {
     // Получить новый токен (по уже истёкшему)
     Route::post('refresh', 'refresh')->name('auth.refresh');
 
+
     Route::middleware(['auth:api'])->group(function () {
+        Route::get('user', 'user')->name('auth.user');
         // Выйти
         Route::post('logout', 'logout')->name('auth.logout');
     });
