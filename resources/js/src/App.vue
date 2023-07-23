@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import { defineComponent } from "vue";
 import PrimaryHeader from "./components/PrimaryHeader.vue";
 
@@ -13,6 +14,16 @@ export default defineComponent({
     components: { PrimaryHeader },
     setup() {
         return {};
+    },
+    async created() {
+        try {
+            const response = await axios.get("/api/auth/user");
+            console.log(response.data[0]);
+
+            this.$store.dispatch("user", response.data[0]);
+        } catch (error) {
+            console.log(error);
+        }
     },
 });
 </script>

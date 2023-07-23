@@ -46,6 +46,11 @@
 import axios from "axios";
 
 export default {
+    async created() {
+        if (localStorage.getItem("access_token")) {
+            this.$router.push("/");
+        }
+    },
     data() {
         return {
             name: "Dumitru",
@@ -61,10 +66,11 @@ export default {
                 password: this.password,
             };
             try {
-                const response = await axios.post("/api/auth/register", data);
-                console.log(JSON.parse(response));
+                await axios.post("/api/auth/register", data);
+
+                this.$router.push("/login");
             } catch (error) {
-                console.error(error);
+                console.error(error.response.data.message);
             }
         },
     },

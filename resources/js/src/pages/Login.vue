@@ -1,14 +1,17 @@
 <template>
     <div class="container">
         <h2 class="text-center my-5">Login Page</h2>
-        <form>
+        <div v-if="error" class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        <form @submit.prevent="handleSubmit">
             <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
+                <label for="email" class="form-label">Email</label>
                 <input
                     type="text"
                     class="form-control"
-                    id="username"
-                    v-model="username"
+                    id="email"
+                    v-model="email"
                 />
             </div>
             <div class="mb-3">
@@ -24,7 +27,7 @@
                 <button
                     type="submit"
                     class="btn btn-primary"
-                    @click.prevent="login"
+                    @click.prevent="handleSubmit"
                 >
                     Login
                 </button>
@@ -39,15 +42,16 @@ import axios from "axios";
 export default {
     data() {
         return {
-            username: "",
+            email: "",
             password: "",
+            error: "",
         };
     },
     methods: {
-        async login() {
+        async handleSubmit() {
             try {
                 const response = await axios.post("/api/auth/login", {
-                    username: this.username,
+                    email: this.email,
                     password: this.password,
                 });
 
@@ -56,9 +60,15 @@ export default {
                         "access_token",
                         response.data.access_token
                     );
+
+                    this.$store.dispatch("user", response.data.user);
+
+                    this.$router.push("/");
+                } else {
+                    console.log("Something gone wrond with jwt");
                 }
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.error;
             }
         },
     },
