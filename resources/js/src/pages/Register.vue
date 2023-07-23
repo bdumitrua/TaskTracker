@@ -1,6 +1,20 @@
 <template>
     <div class="container">
         <h2 class="text-center my-5">Registration Page</h2>
+        <div
+            v-if="errors"
+            v-for="(errorArray, index) in errors"
+            :key="index"
+            class="alert alert-danger"
+            role="alert"
+        >
+            <div
+                v-for="(error, innerIndex) in errorArray"
+                :key="`inner-${innerIndex}`"
+            >
+                {{ error }}
+            </div>
+        </div>
         <form @submit.prevent="handleSubmit">
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
@@ -44,16 +58,12 @@
 
 <script>
 export default {
-    async created() {
-        if (localStorage.getItem("access_token")) {
-            this.$router.push("/");
-        }
-    },
     data() {
         return {
-            name: "Dumitru",
+            name: "",
             email: "",
             password: "",
+            errors: "",
         };
     },
     methods: {
@@ -68,7 +78,7 @@ export default {
 
                 this.$router.push("/login");
             } catch (error) {
-                console.error(error.response.data.message);
+                this.errors = error.response.data.errors;
             }
         },
     },

@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\ApiAuthController;
-use App\Http\Controllers\ApiTaskController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\ApiTaskController;
+use App\Http\Controllers\Api\ApiTaskListController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,28 +33,28 @@ Route::prefix('auth')->controller(ApiAuthController::class)->group(function () {
     });
 });
 
-Route::prefix('lists')->controller(ApiTaskController::class)->group(function () {
+Route::prefix('tasks')->controller(ApiTaskController::class)->group(function () {
     Route::middleware(['auth:api'])->group(function () {
         // Создать задачу
         Route::post('/{list}/tasks', 'store');
         // Изменить задачу
-        Route::put('/tasks/{task}', 'update');
-        // Удалить задачу
-        Route::delete('/tasks/{task}', 'destroy');
+        Route::put('/{task}', 'update');
+        // Удалить задачу 
+        Route::delete('/{task}', 'destroy');
     });
 });
 
 Route::prefix('lists')->controller(ApiTaskListController::class)->group(function () {
     Route::middleware(['auth:api'])->group(function () {
         // Получить свои списки
-        Route::get('/', [ApiTaskListController::class, 'index']);
+        Route::get('/', 'index');
         // Добавить список
-        Route::post('/', [ApiTaskListController::class, 'store']);
+        Route::post('/', 'store');
         // Посмотреть задачи списка
-        Route::get('/{list}', [ApiTaskListController::class, 'show']);
+        Route::get('/{list}', 'show');
         // Изменить список
-        Route::put('/{list}', [ApiTaskListController::class, 'update']);
+        Route::put('/{list}', 'update');
         // Удалить список
-        Route::delete('/{list}', [ApiTaskListController::class, 'destroy']);
+        Route::delete('/{list}', 'destroy');
     });
 });

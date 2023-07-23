@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\TasksList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class ApiTaskListController extends Controller
 
         $list = TasksList::create([
             'name' => $request->name,
-            'user_id' => Auth::user(),
+            'user_id' => Auth::user()->id,
         ]);
 
         return response()->json($list);
@@ -39,7 +40,7 @@ class ApiTaskListController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        return response()->json($list);
+        return response()->json($list->tasks);
     }
 
     public function update(Request $request, TasksList $list)

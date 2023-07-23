@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\TasksList;
@@ -99,7 +100,9 @@ class ApiTaskController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        $task->tags()->detach(); // удалить все связанные теги
+        if ($task->tags) {
+            $task->tags()->detach(); // удалить все связанные теги
+        }
         $task->delete();
 
         return response()->json('Task Deleted Successfully');

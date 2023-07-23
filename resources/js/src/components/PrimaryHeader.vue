@@ -22,6 +22,11 @@
             </span>
             <span v-if="user" class="d-flex gap-5">
                 <li>
+                    <router-link class="btn btn-outline-light" to="/lists"
+                        >Мои списки</router-link
+                    >
+                </li>
+                <li>
                     <a
                         class="btn btn-outline-light"
                         href="javascript:void(0)"

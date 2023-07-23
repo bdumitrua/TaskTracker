@@ -21,7 +21,7 @@ class TasksList extends Model
 
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class, 'list_id');
     }
 
     public function viewers()

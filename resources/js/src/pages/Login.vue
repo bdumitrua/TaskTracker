@@ -61,7 +61,7 @@ export default {
 
                     this.$store.dispatch("user", response.data.user);
 
-                    this.$router.push("/");
+                    this.$router.push("/lists");
                 } else {
                     console.log("Something gone wrond with jwt");
                 }
