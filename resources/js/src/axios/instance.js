@@ -9,6 +9,23 @@ const axiosInstance = axios.create({
 axiosInstance.defaults.headers.common["Authorization"] =
     "Bearer " + localStorage.getItem("access_token");
 
+axiosInstance.interceptors.request.use(
+    (config) => {
+        // Получение токена из localStorage
+        const token = localStorage.getItem("access_token");
+
+        // Если токен есть, добавляем его в заголовок запроса
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // Создаем перехватчик ответов
 axiosInstance.interceptors.response.use(null, async (error) => {
     if (error.config && error.response && error.response.status === 401) {
