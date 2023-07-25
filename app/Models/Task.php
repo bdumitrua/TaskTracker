@@ -13,7 +13,8 @@ class Task extends Model
         'list_id',
         'name',
         'description',
-        'image_path',
+        'image',
+        'thumbnail',
     ];
 
     public function list()
@@ -23,6 +24,6 @@ class Task extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(Tag::class, 'task_tag');
+        return $this->belongsToMany(Tag::class, 'tag_task');
     }
 }

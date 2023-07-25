@@ -9,6 +9,8 @@ class TasksList extends Model
 {
     use HasFactory;
 
+    protected $with = ['viewers', 'editors'];
+
     protected $fillable = [
         'user_id',
         'name',
@@ -26,11 +28,11 @@ class TasksList extends Model
 
     public function viewers()
     {
-        return $this->belongsToMany(User::class, 'list_viewers');
+        return $this->belongsToMany(User::class, 'list_viewers', 'list_id', 'user_id');
     }
 
     public function editors()
     {
-        return $this->belongsToMany(User::class, 'list_editors');
+        return $this->belongsToMany(User::class, 'list_editors', 'list_id', 'user_id');
     }
 }

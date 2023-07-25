@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('list_viewers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('list_id')->constrained('tasks_lists')->onDelete('cascade');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('list_id')->references('id')->on('tasks_lists')->onDelete('cascade');
             $table->timestamps();
         });
     }

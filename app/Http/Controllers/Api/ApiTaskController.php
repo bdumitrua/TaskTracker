@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ListEditor;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\TasksList;
@@ -16,12 +17,14 @@ class ApiTaskController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'tags' => 'array',
             'tags.*' => 'string',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if ($list->user_id !== Auth::user()->id) {
+        if (
+            $list->user_id !== Auth::user()->id &&
+            ListEditor::where('list_id', $list->id)->where('user_id', Auth::id())->count() == 0
+        ) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -29,22 +32,23 @@ class ApiTaskController extends Controller
         $thumbnailPath = '';
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move(public_path('storage/images'), $imageName);
 
-            $imagePath = '/images/' . $imageName;
-            $thumbnailPath = '/images/' . $this->createThumbnail(public_path($imagePath));
+            $imagePath = 'storage/images/' . $imageName;
+            $thumbnailPath = $this->createThumbnail(public_path($imagePath));
         }
 
         $task = Task::create([
-            'name' => $request->name,
             'list_id' => $list->id,
+            'name' => $request->name,
             'description' => $request->description,
             'image' => $imagePath,
             'thumbnail' => $thumbnailPath,
         ]);
 
-        if ($request->tags) {
-            foreach ($request->tags as $tag_name) {
+        $tags = json_decode($request->tags);
+        if ($tags) {
+            foreach ($tags as $tag_name) {
                 $tag = Tag::firstOrCreate(['name' => $tag_name]);
                 $task->tags()->attach($tag->id);
             }
@@ -62,17 +66,20 @@ class ApiTaskController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if ($task->list->user_id !== Auth::user()->id) {
+        if (
+            $task->list->user_id !== Auth::user()->id &&
+            ListEditor::where('list_id', $task->list()->first()->id)->where('user_id', Auth::id())->count() == 0
+        ) {
             return response()->json('Unauthorized', 403);
         }
 
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move(public_path('/images/'), $imageName);
 
             $task->update([
-                'image' => '/images/' . $imageName,
-                'thumbnail' => '/images/' . $this->createThumbnail(public_path($task->image))
+                'image' => 'storage/images/' . $imageName,
+                'thumbnail' => $this->createThumbnail(public_path($task->image))
             ]);
         }
 
@@ -96,7 +103,10 @@ class ApiTaskController extends Controller
 
     public function destroy(Task $task)
     {
-        if ($task->list->user_id !== Auth::user()->id) {
+        if (
+            $task->list->user_id !== Auth::user()->id &&
+            ListEditor::where('list_id', $task->list()->first()->id)->where('user_id', Auth::id())->count() == 0
+        ) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -116,7 +126,7 @@ class ApiTaskController extends Controller
             $constraint->upsize();
         });
 
-        $thumbnailPath = 'thumbnails/' . basename($path);
+        $thumbnailPath = 'storage/images/thumbnails/' . basename($path);
         $img->save(public_path($thumbnailPath));
 
         return $thumbnailPath;

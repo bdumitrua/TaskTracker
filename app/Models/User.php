@@ -66,13 +66,13 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(TasksList::class);
     }
 
-    public function viewableLists()
+    public function viewerLists()
     {
-        return $this->belongsToMany(TasksList::class, 'list_viewers');
+        return $this->belongsToMany(TasksList::class, 'list_viewers', 'user_id', 'list_id');
     }
 
-    public function editableLists()
+    public function editorLists()
     {
-        return $this->belongsToMany(TasksList::class, 'list_editors');
+        return $this->belongsToMany(TasksList::class, 'list_editors', 'user_id', 'list_id');
     }
 }
