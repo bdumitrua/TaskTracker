@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h2 class="text-center my-5">My Lists</h2>
+        <h2 class="text-center my-5">Lists</h2>
         <div class="mb-5">
             <h4 class="text-center my-3">Create a new list</h4>
             <form @submit.prevent="createList">
@@ -25,7 +25,12 @@
             <span class="visually-hidden">Loading...</span>
         </div>
         <div v-else>
-            <div class="card mb-3" v-for="(list, index) in lists" :key="index">
+            <h2 class="text-center mt-5 mb-3">My Lists</h2>
+            <div
+                class="card mb-3"
+                v-for="(list, index) in myLists"
+                :key="index"
+            >
                 <div class="card-body">
                     <div
                         class="d-flex justify-content-between align-items-center"
@@ -106,8 +111,23 @@
                         </form>
                     </div>
                     <div class="mt-3">
-                        <strong>Viewers:</strong>
-                        {{ getViewersString(list.viewers) }}
+                        <strong
+                            >Viewers:
+                            {{ getViewersString(list.viewers) }}</strong
+                        >
+                        <div
+                            class="d-flex align-items-center gap-1 flex-wrap"
+                            v-for="(viewer, index) in list.viewers"
+                            :key="index"
+                        >
+                            <span>{{ viewer.name }} </span>
+                            <button
+                                @click="removeViewer(list, viewer.id)"
+                                class="remove-button"
+                            >
+                                <p class="remove-text">-</p>
+                            </button>
+                        </div>
                         <form @submit.prevent="addViewer(list)">
                             <div class="input-group mt-2">
                                 <input
@@ -121,22 +141,13 @@
                                 </button>
                             </div>
                         </form>
-                        <!-- Кнопка для удаления просмотрщика -->
-                        <div
-                            v-for="(viewer, index) in list.viewers"
-                            :key="index"
-                        >
-                            <button
-                                @click="removeViewer(list, viewer.id)"
-                                class="btn btn-danger btn-sm mt-2"
-                            >
-                                Remove
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
-            <div v-if="!lists.length" class="alert alert-info">
+            <div
+                v-if="!myLists.length && !editLists.length && !viewLists.length"
+                class="alert alert-info"
+            >
                 No lists found.
             </div>
         </div>
@@ -147,11 +158,14 @@
 export default {
     data() {
         return {
-            lists: [],
+            myLists: [],
+            editLists: [],
+            viewLists: [],
             loading: false,
             newListName: "",
             newEditorEmail: "",
             newViewerEmail: "",
+            lists: [],
         };
     },
     async created() {
@@ -161,8 +175,23 @@ export default {
         async loadLists() {
             this.loading = true;
             try {
-                const response = await this.$axios.get("/lists");
-                this.lists = response.data.map((list) => ({
+                const myLists = await this.$axios.get("/lists");
+                const editLists = await this.$axios.get("/lists/editable");
+                const viewLists = await this.$axios.get("/lists/viewable");
+
+                this.myLists = myLists.data.map((list) => ({
+                    ...list,
+                    isEditing: false,
+                    newName: list.name,
+                }));
+
+                this.editLists = editLists.data.map((list) => ({
+                    ...list,
+                    isEditing: false,
+                    newName: list.name,
+                }));
+
+                this.viewLists = viewLists.data.map((list) => ({
                     ...list,
                     isEditing: false,
                     newName: list.name,
@@ -206,16 +235,12 @@ export default {
         },
         // Метод для преобразования массива редакторов в строку с именами через запятую
         getEditorsString(editors) {
-            const editorNames = editors.map((editor) => editor.name).join(", ");
-
-            return "You" + (editorNames ? ", " + editorNames : "");
+            return editors.map((editor) => editor.name).join(", ");
         },
 
         // Метод для преобразования массива читателей в строку с именами через запятую
         getViewersString(viewers) {
-            const viewerNames = viewers.map((viewer) => viewer.name).join(", ");
-
-            return "You" + (viewerNames ? ", " + viewerNames : "");
+            return viewers.map((viewer) => viewer.name).join(", ");
         },
         async addEditor(list) {
             try {

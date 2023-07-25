@@ -31,19 +31,21 @@
                     </div>
 
                     <!-- Кнопки редактирования и удаления -->
-                    <div class="ms-auto">
-                        <button
-                            class="btn btn-primary me-2"
-                            @click="editTask(task)"
-                        >
-                            Edit
-                        </button>
-                        <button
-                            class="btn btn-danger"
-                            @click="deleteTask(task.id)"
-                        >
-                            Delete
-                        </button>
+                    <div v-if="user" class="ms-auto">
+                        <div v-if="editors.includes(user.id)">
+                            <button
+                                class="btn btn-primary me-2"
+                                @click="editTask(task)"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                class="btn btn-success"
+                                @click="deleteTask(task.id)"
+                            >
+                                Done
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -64,81 +66,92 @@
                 There are no tasks yet
             </li>
         </ul>
-
-        <h3 class="text-center mt-5 mb-4">Create new task</h3>
-        <form class="mb-3" @submit.prevent="addTask">
-            <div class="mb-3">
-                <label for="name" class="form-label">Task Name</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    v-model="newTask.name"
-                    placeholder="Enter task name"
-                />
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="description"
-                    v-model="newTask.description"
-                    placeholder="Enter task description"
-                />
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image</label>
-                <input
-                    type="file"
-                    class="form-control"
-                    id="image"
-                    ref="fileInput"
-                    accept="image/png, image/jpg, image/jpeg, image/svg"
-                />
-            </div>
-            <div class="mb-3">
-                <label for="tags" class="form-label">Tags</label>
-                <div class="input-group">
+        <div v-if="user">
+            <h3 v-if="editors.includes(user.id)" class="text-center mt-5 mb-4">
+                Create new task
+            </h3>
+            <form
+                v-if="user && editors.includes(user.id)"
+                class="mb-3"
+                @submit.prevent="addTask"
+            >
+                <div class="mb-3">
+                    <label for="name" class="form-label">Task Name</label>
                     <input
                         type="text"
                         class="form-control"
-                        id="tags"
-                        v-model="tagInput"
-                        placeholder="Enter tag"
+                        id="name"
+                        v-model="newTask.name"
+                        placeholder="Enter task name"
                     />
-                    <button
-                        @click="addTag"
-                        class="btn btn-outline-secondary"
-                        type="button"
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label"
+                        >Description</label
                     >
-                        Add Tag
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="description"
+                        v-model="newTask.description"
+                        placeholder="Enter task description"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image</label>
+                    <input
+                        type="file"
+                        class="form-control"
+                        id="image"
+                        ref="fileInput"
+                        accept="image/png, image/jpg, image/jpeg, image/svg"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="tags" class="form-label">Tags</label>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="tags"
+                            v-model="tagInput"
+                            placeholder="Enter tag"
+                        />
+                        <button
+                            @click="addTag"
+                            class="btn btn-outline-secondary"
+                            type="button"
+                        >
+                            Add Tag
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="newTask.tags.length > 0" class="mb-3">
+                    <label class="form-label">Selected Tags</label>
+                    <ul class="list-group">
+                        <li
+                            class="list-group-item d-flex justify-content-between align-items-center"
+                            v-for="(tag, index) in newTask.tags"
+                            :key="index"
+                        >
+                            {{ tag }}
+                            <button
+                                @click="removeTag(index)"
+                                class="btn btn-danger btn-sm"
+                            >
+                                Remove
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="d-flex justify-content-center mt-3 mb-5">
+                    <button type="submit" class="btn btn-primary">
+                        Add Task
                     </button>
                 </div>
-            </div>
-
-            <div v-if="newTask.tags.length > 0" class="mb-3">
-                <label class="form-label">Selected Tags</label>
-                <ul class="list-group">
-                    <li
-                        class="list-group-item d-flex justify-content-between align-items-center"
-                        v-for="(tag, index) in newTask.tags"
-                        :key="index"
-                    >
-                        {{ tag }}
-                        <button
-                            @click="removeTag(index)"
-                            class="btn btn-danger btn-sm"
-                        >
-                            Remove
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div class="d-flex justify-content-center mt-3 mb-5">
-                <button type="submit" class="btn btn-primary">Add Task</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -146,8 +159,11 @@
 export default {
     data() {
         return {
+            user: null,
             tasks: [],
             tagInput: "",
+            editors: [],
+            viewers: [],
             newTask: {
                 name: "",
                 description: "",
@@ -158,7 +174,7 @@ export default {
         };
     },
     async created() {
-        this.fetchTasks();
+        await this.fetchTasks();
     },
     methods: {
         async fetchTasks() {
@@ -166,7 +182,22 @@ export default {
                 const response = await this.$axios.get(
                     `/lists/${this.$route.params.id}`
                 );
-                this.tasks = [...response.data];
+                const data = [...response.data];
+                this.tasks = [...data[0]];
+
+                // Извините за этот ужас)
+                const editors = [...data[1]];
+                const viewers = [...data[2]];
+
+                this.editors = editors.map((viewer) => {
+                    return viewer.id;
+                });
+
+                this.viewers = viewers.map((viewer) => {
+                    return viewer.id;
+                });
+
+                this.user = this.$store.getters.user;
             } catch (error) {
                 if (
                     error.response.data == "Unauthorized" ||
@@ -244,8 +275,6 @@ export default {
             )}`;
         },
         getColorForLetter(letter) {
-            // Здесь вы можете определить логику для определения цвета на основе буквы
-            // Например, можно использовать switch или какой-то объект с соответствиями букв и цветов
             // В этом примере используется случайное присвоение цвета
             const colors = [
                 "primary",
