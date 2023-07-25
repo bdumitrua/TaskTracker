@@ -3,7 +3,7 @@ import axios from "axios";
 // TODO
 // Брать из env
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: "http://tasktracker.buy/api",
 });
 
 axiosInstance.defaults.headers.common["Authorization"] =
