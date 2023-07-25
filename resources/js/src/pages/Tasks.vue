@@ -9,18 +9,18 @@
                 v-for="task in tasks"
                 :key="task.id"
             >
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
                     <!-- Превью (thumbnail) задачи -->
-                    <div class="me-3">
+                    <div v-if="task.thumbnail" class="me-3">
                         <a target="_blank" :href="getPublicPath(task.image)">
                             <img
-                                v-if="task.thumbnail"
                                 :src="getPublicPath(task.thumbnail)"
                                 alt="Task Thumbnail"
                                 style="
                                     width: max(150px, 100%);
                                     height: max(150px, 100%);
                                 "
+                                class="rounded"
                         /></a>
                     </div>
 
@@ -31,7 +31,7 @@
                     </div>
 
                     <!-- Кнопки редактирования и удаления -->
-                    <div>
+                    <div class="ms-auto">
                         <button
                             class="btn btn-primary me-2"
                             @click="editTask(task)"
@@ -44,6 +44,16 @@
                         >
                             Delete
                         </button>
+                    </div>
+                </div>
+
+                <div v-if="task.tags">
+                    <div
+                        v-for="(tag, index) in task.tags"
+                        :key="index"
+                        :class="tagColorClass(tag.name)"
+                    >
+                        {{ tag.name }}
                     </div>
                 </div>
             </li>
@@ -87,6 +97,44 @@
                     accept="image/png, image/jpg, image/jpeg, image/svg"
                 />
             </div>
+            <div class="mb-3">
+                <label for="tags" class="form-label">Tags</label>
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="tags"
+                        v-model="tagInput"
+                        placeholder="Enter tag"
+                    />
+                    <button
+                        @click="addTag"
+                        class="btn btn-outline-secondary"
+                        type="button"
+                    >
+                        Add Tag
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="newTask.tags.length > 0" class="mb-3">
+                <label class="form-label">Selected Tags</label>
+                <ul class="list-group">
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                        v-for="(tag, index) in newTask.tags"
+                        :key="index"
+                    >
+                        {{ tag }}
+                        <button
+                            @click="removeTag(index)"
+                            class="btn btn-danger btn-sm"
+                        >
+                            Remove
+                        </button>
+                    </li>
+                </ul>
+            </div>
             <div class="d-flex justify-content-center mt-3 mb-5">
                 <button type="submit" class="btn btn-primary">Add Task</button>
             </div>
@@ -99,9 +147,11 @@ export default {
     data() {
         return {
             tasks: [],
+            tagInput: "",
             newTask: {
                 name: "",
                 description: "",
+                tags: [],
             },
             editMode: false,
             editTaskId: null,
@@ -118,7 +168,12 @@ export default {
                 );
                 this.tasks = [...response.data];
             } catch (error) {
-                console.error(error);
+                if (
+                    error.response.data == "Unauthorized" ||
+                    error.response.status == 403
+                ) {
+                    return this.$router.push("/404");
+                }
             }
         },
         async addTask() {
@@ -131,13 +186,16 @@ export default {
                 if (this.$refs.fileInput.files[0]) {
                     formData.append("image", this.$refs.fileInput.files[0]);
                 }
+                if (this.newTask.tags.length >= 1) {
+                    formData.append("tags", JSON.stringify(this.newTask.tags));
+                }
 
                 const response = await this.$axios.post(
                     `/tasks/${this.$route.params.id}/tasks`,
                     formData
                 );
                 console.log(response);
-                this.newTask = { name: "", description: "" };
+                this.newTask = { name: "", description: "", tags: [] };
                 this.$refs.fileInput.value = null;
                 this.fetchTasks();
             } catch (error) {
@@ -170,6 +228,37 @@ export default {
                 console.error(error);
             }
         },
+        addTag() {
+            if (this.tagInput.trim() !== "") {
+                this.newTask.tags.push(this.tagInput.trim());
+                this.tagInput = "";
+            }
+        },
+        removeTag(index) {
+            this.newTask.tags.splice(index, 1);
+        },
+        tagColorClass(tagName) {
+            const firstLetter = tagName.charAt(0).toUpperCase();
+            return `badge rounded px-3 py-2 mt-2 me-2 bg-${this.getColorForLetter(
+                firstLetter
+            )}`;
+        },
+        getColorForLetter(letter) {
+            // Здесь вы можете определить логику для определения цвета на основе буквы
+            // Например, можно использовать switch или какой-то объект с соответствиями букв и цветов
+            // В этом примере используется случайное присвоение цвета
+            const colors = [
+                "primary",
+                "success",
+                "danger",
+                "warning",
+                "info",
+                "dark",
+            ];
+            const index = letter.charCodeAt(0) % colors.length;
+            return colors[index];
+        },
+
         getPublicPath(imagePath) {
             return `/${imagePath}`;
         },

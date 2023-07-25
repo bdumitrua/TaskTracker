@@ -1,3 +1,4 @@
+import Error404 from "@/pages/404.vue";
 import Home from "@/pages/Home.vue";
 import Lists from "@/pages/Lists.vue";
 import Login from "@/pages/Login.vue";
@@ -23,7 +24,13 @@ const routes = [
     },
     {
         path: "/lists/:id",
+        name: "Tasks",
         component: Tasks,
+    },
+    {
+        path: "/:catchAll(.*)",
+        name: "Error404",
+        component: Error404,
     },
 ];
 
