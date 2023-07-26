@@ -17,7 +17,6 @@ export default defineComponent({
     async created() {
         try {
             const response = await this.$axios.get("/auth/user");
-            console.log(response.data[0]);
 
             this.$store.dispatch("user", response.data[0]);
         } catch (error) {

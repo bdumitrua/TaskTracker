@@ -4,26 +4,30 @@
             class="d-flex gap-5 list-unstyled justify-content-between align-items-center container m-auto"
         >
             <li>
-                <router-link class="btn btn-outline-light" to="/"
-                    >Главная</router-link
-                >
+                <router-link to="/">
+                    <img
+                        :src="logoPath"
+                        style="height: 40px; width: 150px"
+                        alt="TASKTRACKER"
+                    />
+                </router-link>
             </li>
             <span v-if="!user" class="d-flex gap-5">
                 <li>
                     <router-link class="btn btn-outline-light" to="/login"
-                        >Войти</router-link
+                        >Log in</router-link
                     >
                 </li>
                 <li>
                     <router-link class="btn btn-outline-light" to="/register"
-                        >Зарегистрироваться</router-link
+                        >Register</router-link
                     >
                 </li>
             </span>
             <span v-if="user" class="d-flex gap-5">
                 <li>
                     <router-link class="btn btn-outline-light" to="/lists"
-                        >Мои списки</router-link
+                        >My Lists</router-link
                     >
                 </li>
                 <li>
@@ -31,7 +35,7 @@
                         class="btn btn-outline-light"
                         href="javascript:void(0)"
                         @click="handleLogout"
-                        >Выйти</a
+                        >Logout</a
                     >
                 </li>
             </span>
@@ -42,10 +46,11 @@
 <script>
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
+import logo from "../images/logo.svg";
 
 export default defineComponent({
     setup() {
-        return {};
+        return { logoPath: logo };
     },
     methods: {
         handleLogout() {
