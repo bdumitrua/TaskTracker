@@ -68,11 +68,17 @@ class User extends Authenticatable implements JWTSubject
 
     public function viewerLists()
     {
-        return $this->belongsToMany(TasksList::class, 'list_viewers', 'user_id', 'list_id');
+        return $this->belongsToMany(TasksList::class, 'list_viewers', 'user_id', 'list_id')
+            ->whereDoesntHave('user', function ($query) {
+                $query->where('id', $this->id);
+            });
     }
 
     public function editorLists()
     {
-        return $this->belongsToMany(TasksList::class, 'list_editors', 'user_id', 'list_id');
+        return $this->belongsToMany(TasksList::class, 'list_editors', 'user_id', 'list_id')
+            ->whereDoesntHave('user', function ($query) {
+                $query->where('id', $this->id);
+            });
     }
 }

@@ -22,14 +22,14 @@ class ApiTaskListController extends Controller
     {
         $user = Auth::user();
         $lists = $user->editorLists;
-        return response()->json([$lists]);
+        return response()->json($lists);
     }
 
     public function viewable()
     {
         $user = Auth::user();
         $lists = $user->viewerLists;
-        return response()->json([$lists]);
+        return response()->json($lists);
     }
 
     public function store(Request $request)
