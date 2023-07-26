@@ -22,7 +22,7 @@
                         ></button>
                     </form>
                 </div>
-                <div class="d-flex gap-3">
+                <div v-if="isUserListOwner()" class="d-flex gap-3">
                     <button
                         v-if="!list.isEditing"
                         class="btn btn-primary btn-sm"
@@ -45,77 +45,94 @@
                     </button>
                 </div>
             </div>
-            <div class="mt-3">
-                <strong>Editors: {{ getEditorsString(list.editors) }}</strong>
-                <div v-for="(editor, index) in list.editors" :key="index">
-                    <span
-                        v-if="editor.id !== list.user_id"
-                        class="d-flex align-items-center gap-1 flex-wrap"
-                    >
-                        <p class="mb-0">{{ editor.name }}</p>
-                        <button
-                            @click="removeEditor(list, editor.id)"
-                            class="remove-button"
+            <div
+                class="d-flex"
+                :class="{
+                    'flex-column': isUserListOwner(list),
+                    'gap-5': !isUserListOwner(list),
+                }"
+            >
+                <strong class="mt-3"
+                    >Editors: {{ getEditorsString(list.editors) }}</strong
+                >
+                <div v-if="isUserListOwner()">
+                    <div v-for="(editor, index) in list.editors" :key="index">
+                        <span
+                            v-if="editor.id !== list.user_id"
+                            class="d-flex align-items-center gap-1 flex-wrap"
                         >
-                            <p class="remove-text">-</p>
-                        </button>
-                    </span>
-                </div>
-                <form @submit.prevent="addEditor(list)">
-                    <div class="input-group mt-2">
-                        <input
-                            type="text"
-                            class="form-control"
-                            v-model="newEditorEmail"
-                            placeholder="Enter email"
-                        />
-                        <button class="btn btn-primary" type="submit">
-                            Add
-                        </button>
+                            <p class="mb-0">{{ editor.name }}</p>
+                            <button
+                                @click="removeEditor(list, editor.id)"
+                                class="remove-button"
+                            >
+                                <p class="remove-text">-</p>
+                            </button>
+                        </span>
                     </div>
-                </form>
-            </div>
-            <div class="mt-3">
-                <strong>Viewers: {{ getViewersString(list.viewers) }}</strong>
-                <div v-for="(viewer, index) in list.viewers" :key="index">
-                    <span
-                        v-if="viewer.id !== list.user_id"
-                        class="d-flex align-items-center gap-1 flex-wrap"
-                    >
-                        <p class="mb-0">{{ viewer.name }}</p>
-                        <button
-                            @click="removeViewer(list, viewer.id)"
-                            class="remove-button"
+                    <form @submit.prevent="addEditor(list)">
+                        <div class="input-group mt-2">
+                            <input
+                                type="text"
+                                class="form-control"
+                                v-model="newEditorEmail"
+                                placeholder="Enter email"
+                            />
+                            <button class="btn btn-primary" type="submit">
+                                Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <strong class="mt-3"
+                    >Viewers: {{ getViewersString(list.viewers) }}</strong
+                >
+                <div v-if="isUserListOwner()">
+                    <div v-for="(viewer, index) in list.viewers" :key="index">
+                        <span
+                            v-if="viewer.id !== list.user_id"
+                            class="d-flex align-items-center gap-1 flex-wrap"
                         >
-                            <p class="remove-text">-</p>
-                        </button>
-                    </span>
-                </div>
-                <form @submit.prevent="addViewer(list)">
-                    <div class="input-group mt-2">
-                        <input
-                            type="text"
-                            class="form-control"
-                            v-model="newViewerEmail"
-                            placeholder="Enter email"
-                        />
-                        <button class="btn btn-primary" type="submit">
-                            Add
-                        </button>
+                            <p class="mb-0">{{ viewer.name }}</p>
+                            <button
+                                @click="removeViewer(list, viewer.id)"
+                                class="remove-button"
+                            >
+                                <p class="remove-text">-</p>
+                            </button>
+                        </span>
                     </div>
-                </form>
+                    <form @submit.prevent="addViewer(list)">
+                        <div class="input-group mt-2">
+                            <input
+                                type="text"
+                                class="form-control"
+                                v-model="newViewerEmail"
+                                placeholder="Enter email"
+                            />
+                            <button class="btn btn-primary" type="submit">
+                                Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
     props: {
         list: {
             type: Object,
             required: true,
         },
+    },
+    computed: {
+        ...mapGetters(["user"]),
     },
     data() {
         return {
@@ -199,6 +216,9 @@ export default {
             } catch (error) {
                 console.error(error);
             }
+        },
+        isUserListOwner() {
+            return this.list.user_id === this.user.id;
         },
     },
 };
