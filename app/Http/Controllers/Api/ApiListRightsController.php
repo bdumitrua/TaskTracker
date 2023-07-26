@@ -26,7 +26,7 @@ class ApiListRightsController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        if (ListEditor::where('user_id', $editor->id)->count() > 0) {
+        if (ListEditor::where('user_id', $editor->id)->where('list_id', $list->id)->count() > 0) {
             return response()->json('This user is already editor', 422);
         }
 
@@ -65,7 +65,7 @@ class ApiListRightsController extends Controller
             return response()->json('Unauthorized', 403);
         }
 
-        if (ListViewer::where('user_id', $viewer->id)->count() > 0) {
+        if (ListViewer::where('user_id', $viewer->id)->where('list_id', $list->id)->count() > 0) {
             return response()->json('This user is already viewer', 422);
         }
 

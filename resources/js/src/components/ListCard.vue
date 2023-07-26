@@ -3,7 +3,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <form @submit.prevent="saveList(list)">
+                    <form @submit.prevent="saveList(this.list)">
                         <input
                             type="text"
                             v-if="list.isEditing"
@@ -16,7 +16,7 @@
                             </router-link>
                         </h5>
                         <button
-                            @submit="saveList(list)"
+                            @submit="saveList(this.list)"
                             hidden
                             type="submit"
                         ></button>
@@ -26,20 +26,20 @@
                     <button
                         v-if="!list.isEditing"
                         class="btn btn-primary btn-sm"
-                        @click="startEdit(list)"
+                        @click="startEdit(this.list)"
                     >
                         Edit
                     </button>
                     <button
                         v-else
                         class="btn btn-success btn-sm"
-                        @click="saveList(list)"
+                        @click="saveList(this.list)"
                     >
                         Save
                     </button>
                     <button
                         class="btn btn-danger btn-sm"
-                        @click="deleteList(list)"
+                        @click="deleteList(this.list)"
                     >
                         Delete
                     </button>
@@ -48,29 +48,32 @@
             <div
                 class="d-flex"
                 :class="{
-                    'flex-column': isUserListOwner(list),
-                    'gap-5': !isUserListOwner(list),
+                    'flex-column': isUserListOwner(),
+                    'gap-5': !isUserListOwner(),
                 }"
             >
                 <strong class="mt-3"
-                    >Editors: {{ getEditorsString(list.editors) }}</strong
+                    >Editors: {{ getEditorsString(this.list.editors) }}</strong
                 >
                 <div v-if="isUserListOwner()">
-                    <div v-for="(editor, index) in list.editors" :key="index">
+                    <div
+                        v-for="(editor, index) in this.list.editors"
+                        :key="index"
+                    >
                         <span
-                            v-if="editor.id !== list.user_id"
+                            v-if="editor.id !== this.list.user_id"
                             class="d-flex align-items-center gap-1 flex-wrap"
                         >
                             <p class="mb-0">{{ editor.name }}</p>
                             <button
-                                @click="removeEditor(list, editor.id)"
+                                @click="removeEditor(this.list, editor.id)"
                                 class="remove-button"
                             >
                                 <p class="remove-text">-</p>
                             </button>
                         </span>
                     </div>
-                    <form @submit.prevent="addEditor(list)">
+                    <form @submit.prevent="addEditor(this.list)">
                         <div class="input-group mt-2">
                             <input
                                 type="text"
@@ -85,24 +88,27 @@
                     </form>
                 </div>
                 <strong class="mt-3"
-                    >Viewers: {{ getViewersString(list.viewers) }}</strong
+                    >Viewers: {{ getViewersString(this.list.viewers) }}</strong
                 >
                 <div v-if="isUserListOwner()">
-                    <div v-for="(viewer, index) in list.viewers" :key="index">
+                    <div
+                        v-for="(viewer, index) in this.list.viewers"
+                        :key="index"
+                    >
                         <span
-                            v-if="viewer.id !== list.user_id"
+                            v-if="viewer.id !== this.list.user_id"
                             class="d-flex align-items-center gap-1 flex-wrap"
                         >
                             <p class="mb-0">{{ viewer.name }}</p>
                             <button
-                                @click="removeViewer(list, viewer.id)"
+                                @click="removeViewer(this.list, viewer.id)"
                                 class="remove-button"
                             >
                                 <p class="remove-text">-</p>
                             </button>
                         </span>
                     </div>
-                    <form @submit.prevent="addViewer(list)">
+                    <form @submit.prevent="addViewer(this.list)">
                         <div class="input-group mt-2">
                             <input
                                 type="text"
@@ -161,7 +167,7 @@ export default {
                     name: list.newName,
                 });
                 list.isEditing = false;
-                await this.loadLists();
+                await this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
@@ -181,7 +187,7 @@ export default {
                     email: this.newEditorEmail,
                 });
                 this.newEditorEmail = "";
-                this.loadLists();
+                this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
@@ -192,7 +198,7 @@ export default {
                     email: this.newViewerEmail,
                 });
                 this.newViewerEmail = "";
-                this.loadLists();
+                this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
@@ -202,7 +208,7 @@ export default {
                 await this.$axios.delete(
                     `/lists/${list.id}/remove-editor/${editorId}`
                 );
-                this.loadLists();
+                this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
@@ -212,7 +218,7 @@ export default {
                 await this.$axios.delete(
                     `/lists/${list.id}/remove-viewer/${viewerId}`
                 );
-                this.loadLists();
+                this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
