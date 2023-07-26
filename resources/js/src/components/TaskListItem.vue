@@ -12,26 +12,66 @@
                             height: max(150px, 100%);
                         "
                         class="rounded"
-                /></a>
+                    />
+                </a>
             </div>
 
-            <!-- Информация о задаче -->
+            <!-- Информация о задаче или инпуты для редактирования -->
             <div>
-                <h5 class="m-0">{{ task.name }}</h5>
-                <p v-if="task.description">{{ task.description }}</p>
+                <h5 v-if="!editing" class="m-0">{{ task.name }}</h5>
+                <input
+                    v-else
+                    v-model="editedTask.name"
+                    class="form-control mb-2"
+                />
+
+                <p v-if="!editing && task.description">
+                    {{ task.description }}
+                </p>
+                <textarea
+                    v-if="editing"
+                    v-model="editedTask.description"
+                    class="form-control mb-2"
+                ></textarea>
+
+                <input
+                    v-if="editing"
+                    v-model="editedTags"
+                    class="form-control"
+                    placeholder="Enter tags separated by space"
+                />
+                <div v-if="editing">
+                    <input
+                        type="file"
+                        class="form-control"
+                        id="image"
+                        ref="fileInput"
+                        accept="image/png, image/jpg, image/jpeg, image/svg"
+                        multiple="false"
+                    />
+                </div>
             </div>
 
             <!-- Кнопки редактирования и удаления -->
             <div v-if="user" class="ms-auto">
                 <div v-if="editors.includes(user.id)">
                     <button
+                        v-if="!editing"
                         class="btn btn-primary me-2"
-                        @click="editTask(task)"
+                        @click="startEditing"
                     >
                         Edit
                     </button>
                     <button
-                        class="btn btn-success"
+                        v-else
+                        class="btn btn-success me-2"
+                        @click="saveChanges"
+                    >
+                        Save
+                    </button>
+                    <button
+                        v-if="!editing"
+                        class="btn btn-danger"
                         @click="deleteTask(task.id)"
                     >
                         Done
@@ -40,7 +80,7 @@
             </div>
         </div>
 
-        <div v-if="task.tags">
+        <div v-if="task.tags && !editing">
             <div
                 v-for="(tag, index) in task.tags"
                 :key="index"
@@ -56,8 +96,9 @@
 export default {
     data() {
         return {
-            editMode: false,
-            editTaskId: null,
+            editing: false,
+            editedTask: {},
+            editedTags: "",
         };
     },
     props: {
@@ -78,27 +119,45 @@ export default {
         async fetchTasks() {
             this.$emit("fetchTasks");
         },
+        startEditing() {
+            // Создаем копию задачи для редактирования
+            this.editedTask = { ...this.task };
+            // Преобразуем теги в строку через пробел для отображения в инпуте
+            this.editedTags = this.task.tags.map((tag) => tag.name).join(" ");
+            this.editing = true;
+        },
+        saveChanges() {
+            // Преобразуем строку с тегами в массив слов, разделенных пробелами
+            const tagsArray = this.editedTags.split(" ");
+            // Удаляем пустые теги (если были несколько пробелов между словами)
+            const filteredTags = tagsArray.filter((tag) => tag.trim() !== "");
+            // Создаем новый массив объектов с тегами для сохранения
+            this.editedTask.tags = filteredTags.map((tag) => tag);
+
+            delete this.editedTask.image;
+            // this.$refs.fileInput.files[0]
+            //     ? (this.editedTask.image = this.$refs.fileInput.files[0])
+            //     : console.log("image: ", this.$refs.fileInput.files[0]);
+
+            // Отправляем измененные данные на бэкэнд с помощью Axios
+            this.$axios
+                .patch(`/tasks/${this.task.id}`, this.editedTask)
+                .then(() => {
+                    this.editing = false;
+                    this.$refs.fileInput.value = null;
+                    this.editedTask = {};
+                    this.editedTags = "";
+
+                    this.fetchTasks();
+                })
+                .catch((error) => {
+                    console.error("Error saving changes:", error);
+                    // В случае ошибки можно обработать и вывести сообщение пользователю
+                });
+        },
         async deleteTask(id) {
             try {
                 await this.$axios.delete(`/tasks/${id}`);
-                this.fetchTasks();
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        editTask(task) {
-            this.editMode = true;
-            this.newTask = { ...task };
-            this.editTaskId = task.id;
-        },
-        async saveTask() {
-            try {
-                await this.$axios.put(
-                    `/tasks/${this.editTaskId}`,
-                    this.newTask
-                );
-                this.editMode = false;
-                this.newTask = { name: "", description: "" };
                 this.fetchTasks();
             } catch (error) {
                 console.error(error);

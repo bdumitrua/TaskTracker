@@ -79,7 +79,6 @@ class ApiTaskController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'tags' => 'array',
             'tags.*' => 'string',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -93,11 +92,12 @@ class ApiTaskController extends Controller
 
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('/images/'), $imageName);
+            $request->image->move(public_path('storage/images'), $imageName);
+            $imagePath = 'storage/images/' . $imageName;
 
             $task->update([
                 'image' => 'storage/images/' . $imageName,
-                'thumbnail' => $this->createThumbnail(public_path($task->image))
+                'thumbnail' => $this->createThumbnail(public_path($imagePath))
             ]);
         }
 

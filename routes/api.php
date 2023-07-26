@@ -40,7 +40,7 @@ Route::prefix('tasks')->controller(ApiTaskController::class)->group(function () 
         // Создать задачу
         Route::post('/{list}/tasks', 'store');
         // Изменить задачу
-        Route::put('/{task}', 'update');
+        Route::patch('/{task}', 'update');
         // Удалить задачу 
         Route::delete('/{task}', 'destroy');
     });
