@@ -137,6 +137,23 @@ class ApiTaskController extends Controller
         return response()->json('Task Deleted Successfully');
     }
 
+    public function removeImage(Task $task)
+    {
+        if (
+            $task->list->user_id !== Auth::user()->id &&
+            ListEditor::where('list_id', $task->list()->first()->id)->where('user_id', Auth::id())->count() == 0
+        ) {
+            return response()->json('Unauthorized', 403);
+        }
+
+        $task->update([
+            'image' => null,
+            'thumbnail' => null
+        ]);
+
+        return response()->json('Image Deleted Successfully');
+    }
+
     private function createThumbnail($path)
     {
         $img = Image::make($path);

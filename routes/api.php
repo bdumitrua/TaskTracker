@@ -41,6 +41,8 @@ Route::prefix('tasks')->controller(ApiTaskController::class)->group(function () 
         Route::post('/{list}', 'store');
         // Изменить задачу
         Route::patch('/{task}', 'update');
+        // Удалить изображение задачи 
+        Route::delete('/image/{task}', 'removeImage');
         // Удалить задачу 
         Route::delete('/{task}', 'destroy');
     });

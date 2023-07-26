@@ -2,18 +2,25 @@
     <li class="list-group-item w-100">
         <div class="d-flex align-items-center">
             <!-- Превью (thumbnail) задачи -->
-            <div v-if="task.thumbnail" class="me-3">
+            <div v-if="task.thumbnail" class="me-3 w-25">
                 <a target="_blank" :href="getPublicPath(task.image)">
                     <img
                         :src="getPublicPath(task.thumbnail)"
                         alt="Task Thumbnail"
                         style="
-                            width: max(150px, 100%);
-                            height: max(150px, 100%);
+                            width: min(150px, 100%);
+                            height: min(150px, 100%);
                         "
                         class="rounded"
                     />
                 </a>
+                <button
+                    class="btn btn-danger mt-2 ms-2"
+                    @click="deleteImage(task.id)"
+                    v-if="editing"
+                >
+                    Remove image
+                </button>
             </div>
 
             <!-- Информация о задаче или инпуты для редактирования -->
@@ -125,6 +132,14 @@ export default {
             // Преобразуем теги в строку через пробел для отображения в инпуте
             this.editedTags = this.task.tags.map((tag) => tag.name).join(" ");
             this.editing = true;
+        },
+        async deleteImage(taskId) {
+            try {
+                await this.$axios.delete(`/tasks/image/${taskId}`);
+                this.fetchTasks();
+            } catch (error) {
+                console.error(error);
+            }
         },
         async saveChanges() {
             // Преобразуем строку с тегами в массив слов, разделенных пробелами
