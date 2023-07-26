@@ -33,10 +33,13 @@ export default {
             try {
                 await this.$axios.post("/lists", { name: this.newListName });
                 this.newListName = "";
-                await this.loadLists();
+                this.fetchMyLists();
             } catch (error) {
                 console.error(error);
             }
+        },
+        async fetchMyLists() {
+            this.$emit("fetchMyLists");
         },
     },
 };
