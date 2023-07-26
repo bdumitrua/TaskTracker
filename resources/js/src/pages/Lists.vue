@@ -1,30 +1,12 @@
 <template>
     <div class="container">
         <h2 class="text-center my-5">Lists</h2>
-        <div class="mb-5">
-            <h4 class="text-center my-3">Create a new list</h4>
-            <form @submit.prevent="createList">
-                <div class="input-group mb-3">
-                    <input
-                        type="text"
-                        class="form-control"
-                        placeholder="List name"
-                        v-model="newListName"
-                    />
-                    <button
-                        class="btn btn-outline-secondary"
-                        type="submit"
-                        id="button-addon2"
-                    >
-                        Create List
-                    </button>
-                </div>
-            </form>
-        </div>
+        <ListCreate />
         <div v-if="loading" class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
         <div v-else>
+            <!-- <ListBody /> -->
             <h2 class="text-center mt-5 mb-3">My Lists</h2>
             <div
                 class="card mb-3"
@@ -84,17 +66,21 @@
                             {{ getEditorsString(list.editors) }}</strong
                         >
                         <div
-                            class="d-flex align-items-center gap-1 flex-wrap"
                             v-for="(editor, index) in list.editors"
                             :key="index"
                         >
-                            <span>{{ editor.name }} </span>
-                            <button
-                                @click="removeEditor(list, editor.id)"
-                                class="remove-button"
+                            <span
+                                v-if="editor.id !== list.user_id"
+                                class="d-flex align-items-center gap-1 flex-wrap"
                             >
-                                <p class="remove-text">-</p>
-                            </button>
+                                <p class="mb-0">{{ editor.name }}</p>
+                                <button
+                                    @click="removeEditor(list, editor.id)"
+                                    class="remove-button"
+                                >
+                                    <p class="remove-text">-</p>
+                                </button>
+                            </span>
                         </div>
                         <form @submit.prevent="addEditor(list)">
                             <div class="input-group mt-2">
@@ -116,17 +102,21 @@
                             {{ getViewersString(list.viewers) }}</strong
                         >
                         <div
-                            class="d-flex align-items-center gap-1 flex-wrap"
                             v-for="(viewer, index) in list.viewers"
                             :key="index"
                         >
-                            <span>{{ viewer.name }} </span>
-                            <button
-                                @click="removeViewer(list, viewer.id)"
-                                class="remove-button"
+                            <span
+                                v-if="viewer.id !== list.user_id"
+                                class="d-flex align-items-center gap-1 flex-wrap"
                             >
-                                <p class="remove-text">-</p>
-                            </button>
+                                <p class="mb-0">{{ viewer.name }}</p>
+                                <button
+                                    @click="removeViewer(list, viewer.id)"
+                                    class="remove-button"
+                                >
+                                    <p class="remove-text">-</p>
+                                </button>
+                            </span>
                         </div>
                         <form @submit.prevent="addViewer(list)">
                             <div class="input-group mt-2">
@@ -155,14 +145,16 @@
 </template>
 
 <script>
+import ListCreate from "@/components/ListCreate.vue";
+
 export default {
+    components: { ListCreate },
     data() {
         return {
             myLists: [],
             editLists: [],
             viewLists: [],
             loading: false,
-            newListName: "",
             newEditorEmail: "",
             newViewerEmail: "",
             lists: [],
@@ -200,15 +192,6 @@ export default {
                 console.error(error);
             } finally {
                 this.loading = false;
-            }
-        },
-        async createList() {
-            try {
-                await this.$axios.post("/lists", { name: this.newListName });
-                this.newListName = "";
-                await this.loadLists();
-            } catch (error) {
-                console.error(error);
             }
         },
         async deleteList(list) {

@@ -201,7 +201,7 @@ export default {
             } catch (error) {
                 if (
                     error.response.data == "Unauthorized" ||
-                    error.response.status == 403
+                    error.response.status == 401
                 ) {
                     return this.$router.push("/404");
                 }
