@@ -8,6 +8,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.defaults.headers.common["Authorization"] =
     "Bearer " + localStorage.getItem("access_token");
+axiosInstance.defaults.headers.common["Content-Encoding"] = "gzip";
 
 axiosInstance.interceptors.request.use(
     (config) => {

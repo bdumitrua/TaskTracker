@@ -38,7 +38,7 @@ Route::prefix('tasks')->controller(ApiTaskController::class)->group(function () 
         // Найти задачи с тэгом(-ами)
         Route::get('/search', 'searchByTags');
         // Создать задачу
-        Route::post('/{list}/tasks', 'store');
+        Route::post('/{list}', 'store');
         // Изменить задачу
         Route::patch('/{task}', 'update');
         // Удалить задачу 

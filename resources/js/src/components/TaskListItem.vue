@@ -126,7 +126,7 @@ export default {
             this.editedTags = this.task.tags.map((tag) => tag.name).join(" ");
             this.editing = true;
         },
-        saveChanges() {
+        async saveChanges() {
             // Преобразуем строку с тегами в массив слов, разделенных пробелами
             const tagsArray = this.editedTags.split(" ");
             // Удаляем пустые теги (если были несколько пробелов между словами)
@@ -134,26 +134,37 @@ export default {
             // Создаем новый массив объектов с тегами для сохранения
             this.editedTask.tags = filteredTags.map((tag) => tag);
 
-            delete this.editedTask.image;
-            // this.$refs.fileInput.files[0]
-            //     ? (this.editedTask.image = this.$refs.fileInput.files[0])
-            //     : console.log("image: ", this.$refs.fileInput.files[0]);
+            try {
+                let formData = new FormData();
+                formData.append("name", this.editedTask.name);
 
-            // Отправляем измененные данные на бэкэнд с помощью Axios
-            this.$axios
-                .patch(`/tasks/${this.task.id}`, this.editedTask)
-                .then(() => {
-                    this.editing = false;
-                    this.$refs.fileInput.value = null;
-                    this.editedTask = {};
-                    this.editedTags = "";
+                if (this.editedTask.description) {
+                    formData.append("description", this.editedTask.description);
+                }
 
-                    this.fetchTasks();
-                })
-                .catch((error) => {
-                    console.error("Error saving changes:", error);
-                    // В случае ошибки можно обработать и вывести сообщение пользователю
-                });
+                if (this.$refs.fileInput.files[0]) {
+                    formData.append("image", this.$refs.fileInput.files[0]);
+                }
+
+                if (this.editedTask.tags.length >= 1) {
+                    formData.append(
+                        "tags",
+                        JSON.stringify(this.editedTask.tags)
+                    );
+                }
+
+                formData.append("_method", "patch");
+                await this.$axios.post(`/tasks/${this.task.id}`, formData);
+
+                this.editing = false;
+                this.$refs.fileInput.value = null;
+                this.editedTask = {};
+                this.editedTags = "";
+
+                this.fetchTasks();
+            } catch (error) {
+                console.error(error);
+            }
         },
         async deleteTask(id) {
             try {

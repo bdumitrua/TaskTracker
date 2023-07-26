@@ -106,10 +106,11 @@ class ApiTaskController extends Controller
             'description' => $request->description
         ]);
 
-        if ($request->tags) {
+        $tags = json_decode($request->tags);
+        if ($tags) {
             $task->tags()->detach(); // удалить все текущие теги
 
-            foreach ($request->tags as $tag_name) {
+            foreach ($tags as $tag_name) {
                 $tag = Tag::firstOrCreate(['name' => $tag_name]);
                 $task->tags()->attach($tag->id);
             }

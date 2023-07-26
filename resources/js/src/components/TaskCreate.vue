@@ -123,7 +123,7 @@ export default {
                 }
 
                 await this.$axios.post(
-                    `/tasks/${this.$route.params.id}/tasks`,
+                    `/tasks/${this.$route.params.id}`,
                     formData
                 );
 
