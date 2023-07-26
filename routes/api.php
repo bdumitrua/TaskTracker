@@ -35,6 +35,8 @@ Route::prefix('auth')->controller(ApiAuthController::class)->group(function () {
 
 Route::prefix('tasks')->controller(ApiTaskController::class)->group(function () {
     Route::middleware(['auth:api'])->group(function () {
+        // Найти задачи с тэгом(-ами)
+        Route::get('/search', 'searchByTags');
         // Создать задачу
         Route::post('/{list}/tasks', 'store');
         // Изменить задачу

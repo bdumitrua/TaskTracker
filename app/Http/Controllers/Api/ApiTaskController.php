@@ -13,6 +13,24 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 class ApiTaskController extends Controller
 {
+    public function searchByTags(Request $request)
+    {
+        $tags = $request->tags;
+
+        // Разделяем введенные теги по пробелам и запятым
+        $tagsArray = preg_split("/[\s,]+/", $tags);
+
+        // Удаляем лишние пробелы с каждого тега
+        $tagsArray = array_map('trim', $tagsArray);
+
+        $tasks = Task::orWhereHas('tags', function ($query) use ($tagsArray) {
+            // Ищем задачи, у которых хотя бы один из введенных тегов
+            $query->whereIn('name', $tagsArray);
+        })->with('tags')->get();
+
+        return response()->json($tasks);
+    }
+
     public function store(Request $request, TasksList $list)
     {
         $request->validate([

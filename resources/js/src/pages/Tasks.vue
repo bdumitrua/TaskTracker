@@ -3,6 +3,7 @@
         :tasks="tasks"
         :user="user"
         :editors="editors"
+        :searchTasks="searchTasks"
         @fetchTasks="fetchTasks"
     />
 </template>
@@ -52,6 +53,19 @@ export default {
                 ) {
                     return this.$router.push("/404");
                 }
+            }
+        },
+        async searchTasks(tags) {
+            try {
+                const response = await this.$axios.get("/tasks/search", {
+                    params: { tags: tags.join(",") },
+                });
+
+                console.log(response.data);
+
+                this.tasks = [...response.data];
+            } catch (error) {
+                console.error("Ошибка при поиске задач:", error);
             }
         },
     },

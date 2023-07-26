@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <h2 class="text-center mt-5 mb-4">Tasks List</h2>
-
+        <TaskSearchForm :searchTasks="searchTasks" @fetchTasks="fetchTasks" />
         <ul class="list-group">
             <TaskListItem
                 v-for="task in tasks"
@@ -18,8 +18,6 @@
                 There are no tasks yet
             </li>
         </ul>
-
-        <!-- форму сюда -->
         <TaskCreate :user="user" :editors="editors" @fetchTasks="fetchTasks" />
     </div>
 </template>
@@ -27,11 +25,13 @@
 <script>
 import TaskCreate from "@/components/TaskCreate.vue";
 import TaskListItem from "@/components/TaskListItem.vue";
+import TaskSearchForm from "@/components/TaskSearchForm.vue";
 
 export default {
     components: {
         TaskListItem,
         TaskCreate,
+        TaskSearchForm,
     },
     props: {
         tasks: {
@@ -46,13 +46,14 @@ export default {
             type: Array,
             default: () => [],
         },
+        searchTasks: Function,
     },
     data() {
         return {};
     },
     methods: {
-        async fetchTasks() {
-            this.$emit("fetchTasks");
+        async fetchTasks(tags) {
+            this.$emit("fetchTasks", tags);
         },
     },
 };
