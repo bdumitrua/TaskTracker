@@ -1,9 +1,8 @@
 import axios from "axios";
+const AppUrl = process.env.APP_URL + "/api";
 
-// TODO
-// Брать из env
 const axiosInstance = axios.create({
-    baseURL: "http://tasktracker.buy/api",
+    baseURL: AppUrl,
 });
 
 axiosInstance.defaults.headers.common["Authorization"] =
