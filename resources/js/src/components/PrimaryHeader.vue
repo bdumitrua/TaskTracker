@@ -44,9 +44,9 @@
 </template>
 
 <script>
+import logo from "@/images/logo.svg";
 import { defineComponent } from "vue";
 import { mapGetters } from "vuex";
-import logo from "../images/logo.svg";
 
 export default defineComponent({
     setup() {
