@@ -25,6 +25,10 @@ class ListRequest extends FormRequest
             'name' => 'required',
         ];
     }
-    // TODO
-    // Добавить сообщения ошибок
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'The list name field is required.',
+        ];
+    }
 }

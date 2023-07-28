@@ -45,6 +45,7 @@
                     </button>
                 </div>
             </div>
+            <ErrorBadge :error="error" />
             <div
                 class="d-flex"
                 :class="{
@@ -53,7 +54,7 @@
                 }"
             >
                 <strong class="mt-3"
-                    >Editors: {{ getEditorsString(this.list.editors) }}</strong
+                    >Editors: {{ getNamesString(this.list.editors) }}</strong
                 >
                 <div v-if="isUserListOwner()">
                     <div
@@ -88,7 +89,7 @@
                     </form>
                 </div>
                 <strong class="mt-3"
-                    >Viewers: {{ getViewersString(this.list.viewers) }}</strong
+                    >Viewers: {{ getNamesString(this.list.viewers) }}</strong
                 >
                 <div v-if="isUserListOwner()">
                     <div
@@ -129,8 +130,17 @@
 
 <script>
 import { mapGetters } from "vuex";
+import ErrorBadge from "./ErrorBadge.vue";
 
 export default {
+    components: { ErrorBadge },
+    data() {
+        return {
+            newEditorEmail: "",
+            newViewerEmail: "",
+            error: "",
+        };
+    },
     props: {
         list: {
             type: Object,
@@ -140,87 +150,88 @@ export default {
     computed: {
         ...mapGetters(["user"]),
     },
-    data() {
-        return {
-            newEditorEmail: "",
-            newViewerEmail: "",
-        };
-    },
     methods: {
         async fetchMyLists() {
             this.$store.dispatch("fetchMyLists");
         },
         async deleteList(list) {
             try {
+                this.clearError();
+
                 await this.$axios.delete(`/lists/${list.id}`);
                 await this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors;
             }
-        },
-        startEdit(list) {
-            list.isEditing = true;
         },
         async saveList(list) {
             try {
+                this.clearError();
+
                 await this.$axios.put(`/lists/${list.id}`, {
                     name: list.newName,
                 });
+
                 list.isEditing = false;
                 await this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors["name"][0];
             }
         },
-        // Метод для преобразования массива редакторов в строку с именами через запятую
-        getEditorsString(editors) {
-            return editors.map((editor) => editor.name).join(", ");
-        },
 
-        // Метод для преобразования массива читателей в строку с именами через запятую
-        getViewersString(viewers) {
-            return viewers.map((viewer) => viewer.name).join(", ");
-        },
         async addEditor(list) {
             try {
+                this.clearError();
+
                 await this.$axios.post(`/lists/${list.id}/add-editor`, {
                     email: this.newEditorEmail,
                 });
+
                 this.newEditorEmail = "";
                 this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors;
+                console.log(this.error);
             }
         },
         async addViewer(list) {
             try {
+                this.clearError();
+
                 await this.$axios.post(`/lists/${list.id}/add-viewer`, {
                     email: this.newViewerEmail,
                 });
+
                 this.newViewerEmail = "";
                 this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors;
             }
         },
         async removeEditor(list, editorId) {
             try {
+                this.clearError();
+
                 await this.$axios.delete(
                     `/lists/${list.id}/remove-editor/${editorId}`
                 );
+
                 this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors;
             }
         },
         async removeViewer(list, viewerId) {
             try {
+                this.clearError();
+
                 await this.$axios.delete(
                     `/lists/${list.id}/remove-viewer/${viewerId}`
                 );
+
                 this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.error = error.response.data.errors;
             }
         },
         isUserListOwner() {
@@ -229,6 +240,15 @@ export default {
             }
 
             return false;
+        },
+        clearError() {
+            this.error = "";
+        },
+        startEdit(list) {
+            list.isEditing = true;
+        },
+        getNamesString(users) {
+            return users.map((user) => user.name).join(", ");
         },
     },
 };

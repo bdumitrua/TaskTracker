@@ -42,7 +42,7 @@ const store = createStore({
     },
     actions: {
         async fetchMyLists({ commit }) {
-            fetchListsByType(commit, "", "SET_LISTS", this.state.user);
+            fetchListsByType(commit, "", "SET_MY_LISTS", this.state.user);
         },
         async fetchEditLists({ commit }) {
             fetchListsByType(
@@ -70,7 +70,7 @@ const store = createStore({
             if (token) {
                 try {
                     const response = await axiosInstance.get("/auth/user");
-                    commit("SET_USER", response.data[0]);
+                    commit("SET_USER", response.data);
                 } catch (error) {
                     console.error("Error fetching user:", error);
                 }
@@ -82,7 +82,7 @@ const store = createStore({
         },
     },
     mutations: {
-        SET_LISTS(state, lists) {
+        SET_MY_LISTS(state, lists) {
             state.myLists = lists;
         },
         SET_USER(state, user) {

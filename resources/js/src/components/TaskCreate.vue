@@ -3,6 +3,7 @@
         <h3 v-if="editors.includes(user.id)" class="text-center mt-5 mb-4">
             Create new task
         </h3>
+        <ErrorBadge :errors="errors" />
         <form
             v-if="user && editors.includes(user.id)"
             class="mb-3"
@@ -83,6 +84,8 @@
 </template>
 
 <script>
+import ErrorBadge from "./ErrorBadge.vue";
+
 export default {
     data() {
         return {
@@ -92,6 +95,7 @@ export default {
                 tags: [],
             },
             tagInput: "",
+            errors: [],
         };
     },
     props: {
@@ -110,14 +114,19 @@ export default {
         },
         async addTask() {
             try {
+                this.errors = [];
+
                 let formData = new FormData();
                 formData.append("name", this.newTask.name);
+
                 if (this.newTask.description) {
                     formData.append("description", this.newTask.description);
                 }
+
                 if (this.$refs.fileInput.files[0]) {
                     formData.append("image", this.$refs.fileInput.files[0]);
                 }
+
                 if (this.newTask.tags.length >= 1) {
                     formData.append("tags", JSON.stringify(this.newTask.tags));
                 }
@@ -129,9 +138,10 @@ export default {
 
                 this.newTask = { name: "", description: "", tags: [] };
                 this.$refs.fileInput.value = null;
+
                 this.fetchTasks();
             } catch (error) {
-                console.error(error);
+                this.errors = error.response.data.errors;
             }
         },
         addTag() {
@@ -144,5 +154,6 @@ export default {
             this.newTask.tags.splice(index, 1);
         },
     },
+    components: { ErrorBadge },
 };
 </script>

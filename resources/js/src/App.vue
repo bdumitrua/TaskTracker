@@ -15,11 +15,9 @@ export default defineComponent({
         return {};
     },
     async created() {
+        await this.$store.dispatch("getUser");
         this.$store.dispatch("fetchAllLists");
-        this.$store.dispatch("getUser");
 
-        // На случай если пользователя добавят или
-        // удалят из правообладателей какого-то списка
         setInterval(() => {
             this.$store.dispatch("fetchAllLists");
         }, 15000);
@@ -27,4 +25,14 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style>
+label,
+button,
+a {
+    cursor: pointer;
+}
+/* bootstrap moment */
+p {
+    margin-bottom: 0;
+}
+</style>

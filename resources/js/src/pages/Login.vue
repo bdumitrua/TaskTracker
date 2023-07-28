@@ -1,9 +1,7 @@
 <template>
     <div class="container">
         <h2 class="text-center my-5">Login Page</h2>
-        <div v-if="error" class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
+        <ErrorBadge :errors="errors" />
         <form @submit.prevent="handleSubmit">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -37,12 +35,14 @@
 </template>
 
 <script>
+import ErrorBadge from "../components/ErrorBadge.vue";
+
 export default {
     data() {
         return {
             email: "",
             password: "",
-            error: "",
+            errors: [],
         };
     },
     methods: {
@@ -52,23 +52,21 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-
                 if (response.data.access_token) {
                     localStorage.setItem(
                         "access_token",
                         response.data.access_token
                     );
-
                     this.$store.dispatch("setUser", response.data.user);
-
                     this.$router.push("/lists");
                 } else {
                     console.log("Something gone wrond with jwt");
                 }
             } catch (error) {
-                this.error = error.response.data.error;
+                this.errors = error.response.data.errors;
             }
         },
     },
+    components: { ErrorBadge },
 };
 </script>

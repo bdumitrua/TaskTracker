@@ -1,5 +1,6 @@
 <template>
     <li class="list-group-item w-100">
+        <ErrorBadge :errors="errors" />
         <div class="d-flex align-items-center">
             <!-- Превью (thumbnail) задачи -->
             <div v-if="task.thumbnail" class="me-3 w-25">
@@ -24,30 +25,43 @@
             </div>
 
             <!-- Информация о задаче или инпуты для редактирования -->
-            <div>
+            <div class="w-50">
                 <h5 v-if="!editing" class="m-0">{{ task.name }}</h5>
-                <input
-                    v-else
-                    v-model="editedTask.name"
-                    class="form-control mb-2"
-                />
+                <label v-else class="d-flex align-items-center gap-3 mb-2">
+                    <p style="white-space: nowrap">Task name:</p>
+                    <input v-model="editedTask.name" class="form-control" />
+                </label>
 
                 <p v-if="!editing && task.description">
                     {{ task.description }}
                 </p>
-                <textarea
-                    v-if="editing"
-                    v-model="editedTask.description"
-                    class="form-control mb-2"
-                ></textarea>
 
-                <input
+                <label v-else class="d-flex align-items-center gap-3 mb-2">
+                    <p style="white-space: nowrap">Task description:</p>
+                    <textarea
+                        v-if="editing"
+                        v-model="editedTask.description"
+                        class="form-control"
+                    ></textarea>
+                </label>
+
+                <label
                     v-if="editing"
-                    v-model="editedTags"
-                    class="form-control"
-                    placeholder="Enter tags separated by space"
-                />
-                <div v-if="editing">
+                    class="d-flex align-items-center gap-3 mb-2"
+                >
+                    <p style="white-space: nowrap">Task tags:</p>
+                    <input
+                        v-if="editing"
+                        v-model="editedTags"
+                        class="form-control"
+                        placeholder="Enter tags separated by space"
+                    />
+                </label>
+
+                <label v-if="editing" class="d-flex gap-3">
+                    <p style="white-space: nowrap" class="text-center my-2">
+                        New image (optional):
+                    </p>
                     <input
                         type="file"
                         class="form-control"
@@ -56,7 +70,7 @@
                         accept="image/png, image/jpg, image/jpeg, image/svg"
                         multiple="false"
                     />
-                </div>
+                </label>
             </div>
 
             <!-- Кнопки редактирования и удаления -->
@@ -100,12 +114,15 @@
 </template>
 
 <script>
+import ErrorBadge from "./ErrorBadge.vue";
+
 export default {
     data() {
         return {
             editing: false,
             editedTask: {},
             editedTags: "",
+            errors: [],
         };
     },
     props: {
@@ -135,10 +152,11 @@ export default {
         },
         async deleteImage(taskId) {
             try {
+                this.clearErrors();
                 await this.$axios.delete(`/tasks/image/${taskId}`);
                 this.fetchTasks();
             } catch (error) {
-                console.error(error);
+                this.errors = error.response.data.errors;
             }
         },
         async saveChanges() {
@@ -148,45 +166,41 @@ export default {
             const filteredTags = tagsArray.filter((tag) => tag.trim() !== "");
             // Создаем новый массив объектов с тегами для сохранения
             this.editedTask.tags = filteredTags.map((tag) => tag);
-
             try {
+                this.clearErrors();
+
                 let formData = new FormData();
                 formData.append("name", this.editedTask.name);
-
                 if (this.editedTask.description) {
                     formData.append("description", this.editedTask.description);
                 }
-
                 if (this.$refs.fileInput.files[0]) {
                     formData.append("image", this.$refs.fileInput.files[0]);
                 }
-
                 if (this.editedTask.tags.length >= 1) {
                     formData.append(
                         "tags",
                         JSON.stringify(this.editedTask.tags)
                     );
                 }
-
                 formData.append("_method", "patch");
                 await this.$axios.post(`/tasks/${this.task.id}`, formData);
-
                 this.editing = false;
                 this.$refs.fileInput.value = null;
                 this.editedTask = {};
                 this.editedTags = "";
-
                 this.fetchTasks();
             } catch (error) {
-                console.error(error);
+                this.errors = error.response.data.errors;
             }
         },
         async deleteTask(id) {
             try {
+                this.clearErrors();
                 await this.$axios.delete(`/tasks/${id}`);
                 this.fetchTasks();
             } catch (error) {
-                console.error(error);
+                this.errors = error.response.data.errors;
             }
         },
         tagColorClass(tagName) {
@@ -208,10 +222,13 @@ export default {
             const index = letter.charCodeAt(0) % colors.length;
             return colors[index];
         },
-
         getPublicPath(imagePath) {
             return `/${imagePath}`;
         },
+        clearErrors() {
+            this.errors = [];
+        },
     },
+    components: { ErrorBadge },
 };
 </script>

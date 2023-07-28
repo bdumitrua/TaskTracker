@@ -31,9 +31,6 @@ class RegistrationRequest extends FormRequest
     public function messages()
     {
         return [
-            'password.required' => 'Пароль является обязательным полем',
-            'password.min' => 'Длина пароля должна быть 8 и более символов',
-
             'name.required' => 'Имя является обязательным полем.',
             'name.string'   => 'Имя должно быть строкой.',
             'name.max'      => 'Имя может быть не длиннее 255 символов.',
@@ -41,7 +38,10 @@ class RegistrationRequest extends FormRequest
             'email.required'    => 'Почта является обязательным полем.',
             'email.email'   => 'Введена некорректная почта.',
             'email.max'     => 'Длина почты может быть не более 255 символов.',
-            'email.unique'  => 'Данная почта уже занята.'
+            'email.unique'  => 'Данная почта уже занята.',
+
+            'password.required' => 'Пароль является обязательным полем',
+            'password.min' => 'Длина пароля должна быть 8 и более символов',
         ];
     }
 }

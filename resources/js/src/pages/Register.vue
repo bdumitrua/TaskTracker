@@ -1,20 +1,7 @@
 <template>
     <div class="container">
         <h2 class="text-center my-5">Registration Page</h2>
-        <div
-            v-if="errors"
-            v-for="(errorArray, index) in errors"
-            :key="index"
-            class="alert alert-danger"
-            role="alert"
-        >
-            <div
-                v-for="(error, innerIndex) in errorArray"
-                :key="`inner-${innerIndex}`"
-            >
-                {{ error }}
-            </div>
-        </div>
+        <ErrorBadge :errors="errors" />
         <form @submit.prevent="handleSubmit">
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
@@ -57,6 +44,8 @@
 </template>
 
 <script>
+import ErrorBadge from "../components/ErrorBadge.vue";
+
 export default {
     data() {
         return {
@@ -75,12 +64,12 @@ export default {
             };
             try {
                 await this.$axios.post("/auth/register", data);
-
                 this.$router.push("/login");
             } catch (error) {
                 this.errors = error.response.data.errors;
             }
         },
     },
+    components: { ErrorBadge },
 };
 </script>

@@ -1,6 +1,7 @@
 <template>
     <div>
         <h4 class="text-center my-3">Create a new list</h4>
+        <ErrorBadge :errors="errors" />
         <form @submit.prevent="createList">
             <div class="input-group mb-3">
                 <input
@@ -22,10 +23,13 @@
 </template>
 
 <script>
+import ErrorBadge from "./ErrorBadge.vue";
+
 export default {
     data() {
         return {
             newListName: "",
+            errors: [],
         };
     },
     methods: {
@@ -33,16 +37,16 @@ export default {
             try {
                 await this.$axios.post("/lists", { name: this.newListName });
                 this.newListName = "";
-
                 this.fetchMyLists();
             } catch (error) {
-                console.error(error);
+                this.errors = error.response.data.errors;
             }
         },
         async fetchMyLists() {
             this.$store.dispatch("fetchMyLists");
         },
     },
+    components: { ErrorBadge },
 };
 </script>
 

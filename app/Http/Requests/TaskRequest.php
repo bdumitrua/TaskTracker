@@ -27,7 +27,14 @@ class TaskRequest extends FormRequest
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
-
-    // TODO
-    // Добавить сообщения ошибок
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'The task name field is required.',
+            'tags.*.string' => 'Invalid tag format. Tags should be strings.',
+            'image.image' => 'The uploaded file must be an image.',
+            'image.mimes' => 'Only JPEG, PNG, JPG, GIF, and SVG images are allowed.',
+            'image.max' => 'The image size must not exceed 2048 KB (2 MB).',
+        ];
+    }
 }
