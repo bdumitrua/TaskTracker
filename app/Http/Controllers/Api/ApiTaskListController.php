@@ -7,99 +7,65 @@ use App\Http\Requests\ListRequest;
 use App\Models\ListEditor;
 use App\Models\ListViewer;
 use App\Models\TasksList;
+use App\Services\TaskListService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ApiTaskListController extends Controller
 {
+    private $taskListService;
+
+    public function __construct(TaskListService $taskListService)
+    {
+        $this->taskListService = $taskListService;
+    }
+
     public function index()
     {
-        $user = Auth::user();
-        $lists = $user->lists;
-
-        return response()->json($lists);
+        return $this->handleServiceCall(function () {
+            return $this->taskListService->index();
+        });
     }
 
     public function editable()
     {
-        $user = Auth::user();
-        $lists = $user->editorLists;
-
-        return response()->json($lists);
+        return $this->handleServiceCall(function () {
+            return $this->taskListService->editable();
+        });
     }
 
     public function viewable()
     {
-        $user = Auth::user();
-        $lists = $user->viewerLists;
-
-        return response()->json($lists);
+        return $this->handleServiceCall(function () {
+            return $this->taskListService->viewable();
+        });
     }
 
     public function store(ListRequest $request)
     {
-        $list = TasksList::create([
-            'name' => $request->name,
-            'user_id' => Auth::user()->id,
-        ]);
-
-        ListEditor::create([
-            'user_id' => Auth::user()->id,
-            'list_id' => $list->id
-        ]);
-
-        ListViewer::create([
-            'user_id' => Auth::user()->id,
-            'list_id' => $list->id
-        ]);
-
-        return response()->json($list);
+        return $this->handleServiceCall(function () use ($request) {
+            return $this->taskListService->store($request);
+        });
     }
 
     public function show(TasksList $list)
     {
-        $user = Auth::user();
-
-        if (
-            $list->user_id !== $user->id &&
-            !$list->viewers->contains($user) &&
-            !$list->editors->contains($user)
-        ) {
-            return response()->json('Unauthorized', 403);
-        }
-
-        $viewers = $list->viewers;
-        $editors = $list->editors;
-        $editors->push($list->user_id);
-
-        $tasks = $list->tasks()->with('tags')->get();
-
-        return response()->json([
-            $tasks, $editors, $viewers
-        ]);
+        return $this->handleServiceCall(function () use ($list) {
+            return $this->taskListService->show($list);
+        });
     }
 
     public function update(ListRequest $request, TasksList $list)
     {
-        if ($list->user_id !== Auth::user()->id) {
-            return response()->json('Unauthorized', 403);
-        }
-
-        $list->update([
-            'name' => $request->name
-        ]);
-
-        return response()->json($list);
+        return $this->handleServiceCall(function () use ($request, $list) {
+            return $this->taskListService->update($request, $list);
+        });
     }
 
     public function destroy(TasksList $list)
     {
-        if ($list->user_id !== Auth::user()->id) {
-            return response()->json('Unauthorized', 403);
-        }
-
-        $list->delete();
-
-        return response()->json('List Deleted Successfully');
+        return $this->handleServiceCall(function () use ($list) {
+            return $this->taskListService->destroy($list);
+        });
     }
 }
