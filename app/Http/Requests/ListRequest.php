@@ -25,8 +25,6 @@ class ListRequest extends FormRequest
             'name' => 'required',
         ];
     }
-
-    public function messages()
-    {
-    }
+    // TODO
+    // Добавить сообщения ошибок
 }

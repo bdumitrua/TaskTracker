@@ -40,7 +40,7 @@ class TaskService
         $imagePath = '';
         $thumbnailPath = '';
         if ($request->hasFile('image')) {
-            $imagePath = $this->saveImage($request->image);
+            $imagePath = $this->saveImage($request);
             $thumbnailPath = $this->createThumbnail(public_path($imagePath));
         }
 
@@ -66,7 +66,7 @@ class TaskService
         $this->canEdit($task->list()->first());
 
         if ($request->hasFile('image')) {
-            $imagePath = $this->saveImage($request->image);
+            $imagePath = $this->saveImage($request);
 
             $task->update([
                 'image' => $imagePath,
@@ -126,10 +126,11 @@ class TaskService
         return $thumbnailPath;
     }
 
-    private function saveImage($image)
+    private function saveImage($request)
     {
-        $imageName = time() . '.' . $image->extension();
-        $image->move(public_path('storage/images'), $imageName);
+        $imageName = time() . '.' . $request->image->extension();
+        $request->image->move(public_path('storage/images'), $imageName);
+
         return 'storage/images/' . $imageName;
     }
 

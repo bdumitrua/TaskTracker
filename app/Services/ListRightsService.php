@@ -24,7 +24,7 @@ class ListRightsService
         $editor = $this->getClient($request->email);
 
         if (ListEditor::where('user_id', $editor->id)->where('list_id', $list->id)->count() > 0) {
-            return response()->json('This user is already editor', 422);
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'This user is already editor');
         }
 
         ListEditor::create([
@@ -51,7 +51,7 @@ class ListRightsService
         $viewer = $this->getClient($request->email);
 
         if (ListViewer::where('user_id', $viewer->id)->where('list_id', $list->id)->count() > 0) {
-            return response()->json('This user is already viewer', 422);
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'This user is already viewer');
         }
 
         // Добавление пользователя в список просмотрщиков
