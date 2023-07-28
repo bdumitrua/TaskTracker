@@ -7,6 +7,7 @@
 
 <script>
 import { defineComponent } from "vue";
+import { mapGetters } from "vuex";
 import PrimaryHeader from "./components/PrimaryHeader.vue";
 
 export default defineComponent({
@@ -14,14 +15,12 @@ export default defineComponent({
     setup() {
         return {};
     },
+    computed: {
+        ...mapGetters(["user", "lists"]),
+    },
     async created() {
-        try {
-            const response = await this.$axios.get("/auth/user");
-
-            this.$store.dispatch("user", response.data[0]);
-        } catch (error) {
-            console.log(error);
-        }
+        this.$store.dispatch("fetchLists");
+        this.$store.dispatch("fetchUser");
     },
 });
 </script>
