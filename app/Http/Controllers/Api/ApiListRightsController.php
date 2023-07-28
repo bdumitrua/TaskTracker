@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListRightsRequest;
 use App\Models\ListEditor;
 use App\Models\ListViewer;
 use App\Models\TasksList;
@@ -41,7 +42,7 @@ class ApiListRightsController extends Controller
     public function removeEditor(TasksList $list, User $editor)
     {
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== auth()->user()->id) {
+        if ($list->user_id !== Auth::user()->id) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -81,7 +82,7 @@ class ApiListRightsController extends Controller
     public function removeViewer(TasksList $list, User $viewer)
     {
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== auth()->user()->id) {
+        if ($list->user_id !== Auth::user()->id) {
             return response()->json('Unauthorized', 403);
         }
 

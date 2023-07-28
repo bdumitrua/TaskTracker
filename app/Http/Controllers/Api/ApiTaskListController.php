@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ListRequest;
 use App\Models\ListEditor;
 use App\Models\ListViewer;
 use App\Models\TasksList;
@@ -32,12 +33,8 @@ class ApiTaskListController extends Controller
         return response()->json($lists);
     }
 
-    public function store(Request $request)
+    public function store(ListRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
-
         $list = TasksList::create([
             'name' => $request->name,
             'user_id' => Auth::user()->id,
@@ -58,7 +55,7 @@ class ApiTaskListController extends Controller
 
     public function show(TasksList $list)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (
             $list->user_id !== $user->id &&
             !$list->viewers->contains($user) &&
@@ -78,13 +75,9 @@ class ApiTaskListController extends Controller
         ]);
     }
 
-    public function update(Request $request, TasksList $list)
+    public function update(ListRequest $request, TasksList $list)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
-
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($list->user_id !== $user->id) {
             return response()->json('Unauthorized', 403);
@@ -99,7 +92,7 @@ class ApiTaskListController extends Controller
 
     public function destroy(TasksList $list)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($list->user_id !== $user->id) {
             return response()->json('Unauthorized', 403);

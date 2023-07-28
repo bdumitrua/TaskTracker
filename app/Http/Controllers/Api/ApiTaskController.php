@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TaskRequest;
 use App\Models\ListEditor;
 use App\Models\Tag;
 use App\Models\Task;
@@ -31,14 +32,8 @@ class ApiTaskController extends Controller
         return response()->json($tasks);
     }
 
-    public function store(Request $request, TasksList $list)
+    public function store(TaskRequest $request, TasksList $list)
     {
-        $request->validate([
-            'name' => 'required',
-            'tags.*' => 'string',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
         if (
             $list->user_id !== Auth::user()->id &&
             ListEditor::where('list_id', $list->id)->where('user_id', Auth::id())->count() == 0
@@ -75,14 +70,8 @@ class ApiTaskController extends Controller
         return response()->json($task);
     }
 
-    public function update(Request $request, Task $task)
+    public function update(TaskRequest $request, Task $task)
     {
-        $request->validate([
-            'name' => 'required',
-            'tags.*' => 'string',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
         if (
             $task->list->user_id !== Auth::user()->id &&
             ListEditor::where('list_id', $task->list()->first()->id)->where('user_id', Auth::id())->count() == 0
