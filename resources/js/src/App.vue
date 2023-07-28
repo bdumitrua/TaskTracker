@@ -16,10 +16,12 @@ export default defineComponent({
         return {};
     },
     computed: {
-        ...mapGetters(["user", "lists"]),
+        ...mapGetters(["user", "myLists", "editLists", "viewLists"]),
     },
     async created() {
-        this.$store.dispatch("fetchLists");
+        this.$store.dispatch("fetchMyLists");
+        this.$store.dispatch("fetchEditLists");
+        this.$store.dispatch("fetchViewLists");
         this.$store.dispatch("fetchUser");
     },
 });
