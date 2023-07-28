@@ -86,7 +86,5 @@ class ListRightsService
         if ($list->user_id !== Auth::user()->id) {
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized');
         }
-
-        return true;
     }
 }
