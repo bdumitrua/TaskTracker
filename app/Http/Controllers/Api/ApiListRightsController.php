@@ -15,15 +15,14 @@ class ApiListRightsController extends Controller
 {
     public function addEditor(Request $request, TasksList $list)
     {
-        $editor = User::where('email', $request->email)->first();
-        $user = Auth::user();
-
+        $editor = $this->getClient($request->email);
         if (!$editor) {
             return response()->json('User not found', 404);
         }
 
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== $user->id) {
+        $isCreator = $this->isCreator($list);
+        if (!$isCreator) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -42,9 +41,11 @@ class ApiListRightsController extends Controller
     public function removeEditor(TasksList $list, User $editor)
     {
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== Auth::user()->id) {
+        $isCreator = $this->isCreator($list);
+        if (!$isCreator) {
             return response()->json('Unauthorized', 403);
         }
+
 
         // Удаление пользователя из списка редакторов
         $list->editors()->detach($editor);
@@ -54,7 +55,7 @@ class ApiListRightsController extends Controller
 
     public function addViewer(Request $request, TasksList $list)
     {
-        $viewer = User::where('email', $request->email)->first();
+        $viewer = $this->getClient($request->email);
         $user = Auth::user();
 
         if (!$viewer) {
@@ -62,9 +63,11 @@ class ApiListRightsController extends Controller
         }
 
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== $user->id) {
+        $isCreator = $this->isCreator($list);
+        if (!$isCreator) {
             return response()->json('Unauthorized', 403);
         }
+
 
         if (ListViewer::where('user_id', $viewer->id)->where('list_id', $list->id)->count() > 0) {
             return response()->json('This user is already viewer', 422);
@@ -82,7 +85,8 @@ class ApiListRightsController extends Controller
     public function removeViewer(TasksList $list, User $viewer)
     {
         // Проверка, что пользователь является создателем списка
-        if ($list->user_id !== Auth::user()->id) {
+        $isCreator = $this->isCreator($list);
+        if (!$isCreator) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -90,5 +94,17 @@ class ApiListRightsController extends Controller
         $list->viewers()->detach($viewer);
 
         return response()->json('User removed from viewers', 200);
+    }
+
+    private function getClient($email)
+    {
+        $client = User::where('email', $email)->first();
+
+        return $client;
+    }
+
+    private function isCreator($list)
+    {
+        return $list->user_id === Auth::user()->id;
     }
 }

@@ -16,6 +16,7 @@ class ApiTaskListController extends Controller
     {
         $user = Auth::user();
         $lists = $user->lists;
+
         return response()->json($lists);
     }
 
@@ -23,6 +24,7 @@ class ApiTaskListController extends Controller
     {
         $user = Auth::user();
         $lists = $user->editorLists;
+
         return response()->json($lists);
     }
 
@@ -30,6 +32,7 @@ class ApiTaskListController extends Controller
     {
         $user = Auth::user();
         $lists = $user->viewerLists;
+
         return response()->json($lists);
     }
 
@@ -56,6 +59,7 @@ class ApiTaskListController extends Controller
     public function show(TasksList $list)
     {
         $user = Auth::user();
+
         if (
             $list->user_id !== $user->id &&
             !$list->viewers->contains($user) &&
@@ -77,9 +81,7 @@ class ApiTaskListController extends Controller
 
     public function update(ListRequest $request, TasksList $list)
     {
-        $user = Auth::user();
-
-        if ($list->user_id !== $user->id) {
+        if ($list->user_id !== Auth::user()->id) {
             return response()->json('Unauthorized', 403);
         }
 
@@ -92,9 +94,7 @@ class ApiTaskListController extends Controller
 
     public function destroy(TasksList $list)
     {
-        $user = Auth::user();
-
-        if ($list->user_id !== $user->id) {
+        if ($list->user_id !== Auth::user()->id) {
             return response()->json('Unauthorized', 403);
         }
 
