@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(null, async (error) => {
             } catch (err) {
                 // TODO
                 // Исправить обновление токена
-                // console.error(err);
+                console.error(err);
             }
         }
     }
