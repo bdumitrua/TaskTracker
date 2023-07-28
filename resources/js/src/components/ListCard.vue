@@ -148,7 +148,7 @@ export default {
     },
     methods: {
         async fetchMyLists() {
-            this.$emit("fetchMyLists");
+            this.$store.dispatch("fetchMyLists");
         },
         async deleteList(list) {
             try {
@@ -224,7 +224,11 @@ export default {
             }
         },
         isUserListOwner() {
-            return this.list.user_id === this.user.id;
+            if (this.user) {
+                return this.list.user_id === this.user.id;
+            }
+
+            return false;
         },
     },
 };

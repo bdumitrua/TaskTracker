@@ -55,8 +55,8 @@ export default defineComponent({
     methods: {
         handleLogout() {
             localStorage.removeItem("access_token");
-            this.$store.dispatch("user", null);
             this.$router.push("/");
+            this.$store.dispatch("setUser", null);
         },
     },
     computed: {

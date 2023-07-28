@@ -7,7 +7,6 @@
         <div v-else>
             <ListCard
                 v-for="(list, index) in lists"
-                @fetchMyLists="fetchMyLists"
                 :key="index"
                 :list="list"
             />
@@ -35,11 +34,6 @@ export default {
         loading: {
             type: Boolean,
             required: true,
-        },
-    },
-    methods: {
-        async fetchMyLists() {
-            this.$emit("fetchMyLists");
         },
     },
 };

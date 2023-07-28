@@ -59,7 +59,7 @@ export default {
                         response.data.access_token
                     );
 
-                    this.$store.dispatch("user", response.data.user);
+                    this.$store.dispatch("setUser", response.data.user);
 
                     this.$router.push("/lists");
                 } else {
